@@ -14,14 +14,9 @@ jobs:
   # Add CI jobs to _ci.yaml so this reusable workflow remains the single gate
   # consumed by check-result.
   ci:
-    uses: ./.github/workflows/_ci.yaml
+    uses: $/.github/workflows/_ci.yaml
     permissions:
       contents: read
-      packages: read
-      id-token: write
-      issues: write
-      pull-requests: write
-    secrets: inherit
 
   check-result:
     needs: ci
