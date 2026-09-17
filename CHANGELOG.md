@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.1.4...v1.2.0) (2026-09-17)
+
+
+### Features
+
+* add reusable release dispatch ([#4](https://github.com/air-hand-org/jobdeck-actions/issues/4)) ([adc3a02](https://github.com/air-hand-org/jobdeck-actions/commit/adc3a02c96f92119a58163bba95ed8dd05358f0c))
+
 ## [1.1.4](https://github.com/air-hand-org/jobdeck-actions/compare/v1.1.3...v1.1.4) (2026-09-17)
 
 
