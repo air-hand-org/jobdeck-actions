@@ -1,0 +1,23 @@
+name: release dispatch
+description: Dispatches release services to jobdeck orchestration repository.
+
+inputs:
+  service-name:
+    required: true
+    description: "service name"
+  github-token:
+    required: true
+    description: "token has contents:write for jobdeck repo"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        TARGET_REPOSITORY: "jobdeck"
+        SERVICE_NAME: ${{ inputs.service-name }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const script = require(process.env.GITHUB_ACTION_PATH + '/script.js');
+          await script({github, context}).catch((error) => core.setFailed(error.message));
