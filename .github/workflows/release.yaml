@@ -9,5 +9,5 @@ permissions: {}
 
 jobs:
   release:
-    uses: $/.github/workflows/_release.yaml
+    uses: $/.github/workflows/reusable-release.yaml
     secrets: inherit
