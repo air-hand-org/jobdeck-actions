@@ -26,7 +26,7 @@ module.exports = async ({ github, context }) => {
     repo: TARGET_REPOSITORY,
     event_type: 'image-published',
     client_payload: {
-      services,
+      services: services,
       tag: release.tag_name,
       release_url: release.html_url,
     },
