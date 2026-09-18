@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.2.0...v1.3.0) (2026-09-18)
+
+
+### Features
+
+* dispatch multiple release services ([#6](https://github.com/air-hand-org/jobdeck-actions/issues/6)) ([67a4108](https://github.com/air-hand-org/jobdeck-actions/commit/67a41089db5891732acc7566b282e303d111aee8))
+
 ## [1.2.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.1.4...v1.2.0) (2026-09-17)
 
 
