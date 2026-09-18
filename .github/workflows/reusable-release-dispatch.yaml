@@ -4,8 +4,13 @@ on:
   workflow_call:
     inputs:
       service-name:
-        required: true
+        required: false
         type: string
+        default: ""
+      service-names:
+        required: false
+        type: string
+        default: ""
 
 permissions: {}
 
@@ -27,4 +32,5 @@ jobs:
         uses: $/actions/release-dispatch
         with:
           service-name: ${{ inputs.service-name }}
+          service-names: ${{ inputs.service-names }}
           github-token: ${{ steps.app-token.outputs.token }}
