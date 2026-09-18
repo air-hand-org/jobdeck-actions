@@ -9,7 +9,7 @@ inputs:
   service-names:
     required: false
     default: ""
-    description: "JSON array of service names"
+    description: "comma-separated service names"
   github-token:
     required: true
     description: "token has contents:write for jobdeck repo"

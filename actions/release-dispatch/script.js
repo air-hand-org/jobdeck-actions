@@ -11,11 +11,9 @@ module.exports = async ({ github, context }) => {
   }
 
   let services;
-  try {
-    services = SERVICE_NAMES ? JSON.parse(SERVICE_NAMES) : [SERVICE_NAME];
-  } catch {
-    throw new Error('service-names must be a JSON array.');
-  }
+  services = SERVICE_NAMES
+    ? SERVICE_NAMES.split(',').map((service) => service.trim())
+    : [SERVICE_NAME];
   if (!Array.isArray(services) || services.length === 0 || !services.every((service) => typeof service === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(service))) {
     throw new Error('service-name or service-names must specify valid service names.');
   }
