@@ -3,8 +3,13 @@ description: Dispatches release services to jobdeck orchestration repository.
 
 inputs:
   service-name:
-    required: true
-    description: "service name"
+    required: false
+    default: ""
+    description: "service name (deprecated; use service-names)"
+  service-names:
+    required: false
+    default: ""
+    description: "JSON array of service names"
   github-token:
     required: true
     description: "token has contents:write for jobdeck repo"
@@ -16,6 +21,7 @@ runs:
       env:
         TARGET_REPOSITORY: "jobdeck"
         SERVICE_NAME: ${{ inputs.service-name }}
+        SERVICE_NAMES: ${{ inputs.service-names }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
