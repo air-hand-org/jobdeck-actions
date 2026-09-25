@@ -21,7 +21,6 @@ runs:
         IMAGE: ${{ inputs.image }}
       run: |
         error_file="$(mktemp)"
-        trap 'rm -f "$error_file"' EXIT
 
         if docker buildx imagetools inspect "$IMAGE" >/dev/null 2>"$error_file"; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
