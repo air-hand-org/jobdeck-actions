@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.3.1...v1.4.0) (2026-09-25)
+
+
+### Features
+
+* add Go cache action ([#11](https://github.com/air-hand-org/jobdeck-actions/issues/11)) ([ed39441](https://github.com/air-hand-org/jobdeck-actions/commit/ed39441b4204d60dd0c327ffc6768543f938d911))
+* add image registry actions ([#12](https://github.com/air-hand-org/jobdeck-actions/issues/12)) ([e58ce0a](https://github.com/air-hand-org/jobdeck-actions/commit/e58ce0ab5bdb2452531d3c7d54af3f861e63aac9))
+
 ## [1.3.1](https://github.com/air-hand-org/jobdeck-actions/compare/v1.3.0...v1.3.1) (2026-09-24)
 
 
