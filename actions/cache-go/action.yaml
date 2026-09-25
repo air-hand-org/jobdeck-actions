@@ -1,0 +1,29 @@
+name: cache Go
+description: Restore and save Go build caches, including the golangci-lint analysis cache by default.
+
+inputs:
+  golangci-lint:
+    description: Cache golangci-lint analysis data. golangci-lint must be installed separately.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Restore Go cache
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: go-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
+        restore-keys: |
+          go-${{ runner.os }}-
+    - name: Restore golangci-lint cache
+      if: inputs.golangci-lint == 'true'
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      with:
+        path: ~/.cache/golangci-lint
+        key: golangci-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum', '.golangci.yml', 'aqua.yaml') }}
+        restore-keys: |
+          golangci-${{ runner.os }}-
