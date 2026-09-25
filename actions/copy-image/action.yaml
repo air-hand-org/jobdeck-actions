@@ -35,5 +35,5 @@ runs:
         SOURCE_IMAGE: ${{ inputs.src }}
         DESTINATION_IMAGE: ${{ inputs.dest }}
       run: |
-        docker buildx imagetools create --tag "$DESTINATION_IMAGE" "$SOURCE_IMAGE"
+        docker buildx imagetools create --prefer-index=false --tag "$DESTINATION_IMAGE" "$SOURCE_IMAGE"
         echo "copied=true" >> "$GITHUB_OUTPUT"
