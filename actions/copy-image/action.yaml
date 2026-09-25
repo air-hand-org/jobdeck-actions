@@ -1,0 +1,49 @@
+name: copy image
+description: Copy an image between registries with Docker Buildx. Authenticate to both registries before use.
+
+inputs:
+  source-image:
+    description: Fully-qualified source image reference.
+    required: true
+  destination-image:
+    description: Fully-qualified destination image reference.
+    required: true
+  if-missing:
+    description: Copy only when destination-image does not exist.
+    required: false
+    default: "true"
+
+outputs:
+  copied:
+    description: Whether an image was copied.
+    value: ${{ steps.copy-if-missing.outputs.copied || steps.copy-overwrite.outputs.copied || 'false' }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check destination image
+      id: destination
+      if: inputs.if-missing == 'true'
+      uses: $/actions/image-exists
+      with:
+        image: ${{ inputs.destination-image }}
+    - name: Copy missing image
+      id: copy-if-missing
+      if: inputs.if-missing == 'true' && steps.destination.outputs.exists == 'false'
+      shell: bash
+      env:
+        SOURCE_IMAGE: ${{ inputs.source-image }}
+        DESTINATION_IMAGE: ${{ inputs.destination-image }}
+      run: |
+        docker buildx imagetools create --tag "$DESTINATION_IMAGE" "$SOURCE_IMAGE"
+        echo "copied=true" >> "$GITHUB_OUTPUT"
+    - name: Overwrite destination image
+      id: copy-overwrite
+      if: inputs.if-missing != 'true'
+      shell: bash
+      env:
+        SOURCE_IMAGE: ${{ inputs.source-image }}
+        DESTINATION_IMAGE: ${{ inputs.destination-image }}
+      run: |
+        docker buildx imagetools create --tag "$DESTINATION_IMAGE" "$SOURCE_IMAGE"
+        echo "copied=true" >> "$GITHUB_OUTPUT"

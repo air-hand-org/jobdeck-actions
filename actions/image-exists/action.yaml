@@ -1,0 +1,33 @@
+name: image exists
+description: Check whether an image is available from a registry. Authenticate before use when required.
+
+inputs:
+  image:
+    description: Fully-qualified image reference to inspect.
+    required: true
+
+outputs:
+  exists:
+    description: Whether the image exists in its registry.
+    value: ${{ steps.inspect.outputs.exists }}
+
+runs:
+  using: composite
+  steps:
+    - name: Inspect image
+      id: inspect
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+      run: |
+        error_file="$(mktemp)"
+        trap 'rm -f "$error_file"' EXIT
+
+        if docker buildx imagetools inspect "$IMAGE" >/dev/null 2>"$error_file"; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        elif grep -Eqi 'manifest unknown|name unknown|not found' "$error_file"; then
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+        else
+          cat "$error_file" >&2
+          exit 1
+        fi
