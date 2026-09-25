@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/air-hand-org/jobdeck-actions/compare/v1.4.0...v1.4.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* preserve copied image manifest format ([#14](https://github.com/air-hand-org/jobdeck-actions/issues/14)) ([317ae8e](https://github.com/air-hand-org/jobdeck-actions/commit/317ae8e20d11b516a50c3a48ee7481df99c01f72))
+
 ## [1.4.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.3.1...v1.4.0) (2026-09-25)
 
 
