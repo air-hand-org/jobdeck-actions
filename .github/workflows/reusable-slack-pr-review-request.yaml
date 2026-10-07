@@ -1,0 +1,34 @@
+name: Reusable Slack PR review request
+
+on:
+  workflow_call:
+    secrets:
+      channel-id:
+        description: Slack channel receiving review requests
+        required: true
+      reviewer-user-id:
+        description: Slack user to mention in the top-level message text
+        required: true
+      slack-bot-token:
+        description: Bot token for a notifier app separate from the reviewer
+        required: true
+
+permissions: {}
+
+jobs:
+  request-review:
+    permissions:
+      pull-requests: read
+    runs-on: ubuntu-slim
+    # Keep a notification already being sent alive; queued obsolete heads are skipped.
+    concurrency:
+      group: slack-pr-review-request-${{ github.repository }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    steps:
+      - name: Request PR review in Slack
+        uses: $/actions/slack-pr-review-request
+        with:
+          channel-id: ${{ secrets.channel-id }}
+          reviewer-user-id: ${{ secrets.reviewer-user-id }}
+          slack-bot-token: ${{ secrets.slack-bot-token }}
+          github-token: ${{ github.token }}
