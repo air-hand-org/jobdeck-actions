@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.4.1...v1.5.0) (2026-10-07)
+
+
+### Features
+
+* add reusable Slack PR review notifications ([#16](https://github.com/air-hand-org/jobdeck-actions/issues/16)) ([ea569a4](https://github.com/air-hand-org/jobdeck-actions/commit/ea569a494e05cec893efec4ea370978691a3ed9e))
+
 ## [1.4.1](https://github.com/air-hand-org/jobdeck-actions/compare/v1.4.0...v1.4.1) (2026-09-25)
 
 
