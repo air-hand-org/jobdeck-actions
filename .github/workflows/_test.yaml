@@ -22,5 +22,7 @@ jobs:
       - uses: $/actions/setup-tools
       - name: lint
         run: make lint
+      - name: test
+        run: make test
       - name: check clean
         run: make check-clean

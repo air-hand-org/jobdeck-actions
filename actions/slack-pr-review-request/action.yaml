@@ -1,0 +1,43 @@
+name: Slack PR review request
+description: Request review for the current non-draft PR head without executing PR code.
+
+inputs:
+  channel-id:
+    description: Slack channel receiving the request
+    required: true
+  reviewer-user-id:
+    description: Slack user to mention
+    required: true
+  slack-bot-token:
+    description: Token for the notifier Slack app, separate from the reviewer
+    required: true
+  github-token:
+    description: GitHub token with pull-requests read permission
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare review request
+      id: prepare
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        SLACK_CHANNEL_ID: ${{ inputs.channel-id }}
+        SLACK_REVIEWER_USER_ID: ${{ inputs.reviewer-user-id }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const prepareReview = require(process.env.GITHUB_ACTION_PATH + '/script.js');
+          await prepareReview({ github, context, core })
+            .then((payload) => {
+              if (payload) core.setOutput('payload', JSON.stringify(payload));
+            })
+            .catch((error) => core.setFailed(error.message));
+    - name: Send review request
+      if: steps.prepare.outputs.payload != ''
+      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+      with:
+        method: chat.postMessage
+        token: ${{ inputs.slack-bot-token }}
+        payload: ${{ steps.prepare.outputs.payload }}
+        errors: true
