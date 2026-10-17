@@ -11,7 +11,7 @@ runs:
   using: composite
   steps:
     - name: Restore Go cache
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       with:
         path: |
           ~/go/pkg/mod
@@ -21,7 +21,7 @@ runs:
           go-${{ runner.os }}-
     - name: Restore golangci-lint cache
       if: inputs.golangci-lint == 'true'
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       with:
         path: ~/.cache/golangci-lint
         key: golangci-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum', '.golangci.yml', 'aqua.yaml') }}
