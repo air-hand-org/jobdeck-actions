@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>aquaproj/aqua-renovate-config#2.13.0",
+    "helpers:pinGitHubActionDigestsToSemver",
+    "config:recommended",
+    ":semanticCommits"
+  ],
+  "prConcurrentLimit": 10,
+  "enabledManagers": ["custom.regex", "mise", "github-actions"],
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "3 days",
+  "automerge": false,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": true,
+  "rebaseWhen": "behind-base-branch",
+  "vulnerabilityAlerts": {
+    "automerge": false
+  },
+  "lockFileMaintenance": {
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major"],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "addLabels": ["minor"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "addLabels": ["patch"],
+      "automerge": true
+    }
+  ],
+  "mise": {
+    "managerFilePatterns": [
+      "(^|/)\\.?mise\\.toml$",
+      "(^|/)\\.?mise/config\\.toml$",
+      "(^|/)\\.?mise/config.*\\.toml$"
+    ]
+  }
+}
