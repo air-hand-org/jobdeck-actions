@@ -23,6 +23,10 @@
   },
   "packageRules": [
     {
+      "matchManagers": ["github-actions"],
+      "semanticCommitType": "fix"
+    },
+    {
       "matchUpdateTypes": ["major"],
       "addLabels": ["major"],
       "automerge": false
