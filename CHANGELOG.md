@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/air-hand-org/jobdeck-actions/compare/v1.5.0...v1.5.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* **renovate:** release GitHub Actions dependency updates ([#24](https://github.com/air-hand-org/jobdeck-actions/issues/24)) ([cc6a1df](https://github.com/air-hand-org/jobdeck-actions/commit/cc6a1df3be00b65090e0fda709711f5583ea2951))
+
 ## [1.5.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.4.1...v1.5.0) (2026-10-07)
 
 
