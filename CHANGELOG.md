@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.3](https://github.com/air-hand-org/jobdeck-actions/compare/v1.5.2...v1.5.3) (2026-10-20)
+
+
+### Bug Fixes
+
+* **deps:** update jdx/mise-action action to v5.2.0 ([#38](https://github.com/air-hand-org/jobdeck-actions/issues/38)) ([8f1c69e](https://github.com/air-hand-org/jobdeck-actions/commit/8f1c69edd263a9139abf0a9449df75ec07ac1d2f))
+
 ## [1.5.2](https://github.com/air-hand-org/jobdeck-actions/compare/v1.5.1...v1.5.2) (2026-10-19)
 
 
