@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  merge_group:
+    types: [checks_requested]
   pull_request:
     branches:
       - main
@@ -24,7 +26,7 @@ jobs:
     runs-on: ubuntu-slim
     if: >-
       always() &&
-      needs.ci.result == 'failure'
+      needs.ci.result != 'success'
     steps:
       - name: exit with failure
         run: exit 1
