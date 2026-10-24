@@ -10,6 +10,8 @@ lint:
 
 .PHONY: test
 test:
+	npm ci --ignore-scripts
+	node --test actions/cache-go/action.test.mjs
 	node actions/slack-pr-review-request/message.test.js
 
 .PHONY: check-clean

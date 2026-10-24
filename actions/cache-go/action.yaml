@@ -2,6 +2,10 @@ name: cache Go
 description: Restore and save Go build caches, including the golangci-lint analysis cache by default.
 
 inputs:
+  exact-key-only:
+    description: Disable restore-key fallbacks and use a fresh exact-key cache namespace for Go and golangci-lint.
+    required: false
+    default: "false"
   golangci-lint:
     description: Cache golangci-lint analysis data. golangci-lint must be installed separately.
     required: false
@@ -16,14 +20,12 @@ runs:
         path: |
           ~/go/pkg/mod
           ~/.cache/go-build
-        key: go-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
-        restore-keys: |
-          go-${{ runner.os }}-
+        key: ${{ case(inputs.exact-key-only == 'true', 'go-exact-v1', 'go') }}-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
+        restore-keys: ${{ case(inputs.exact-key-only == 'true', '', format('go-{0}-', runner.os)) }}
     - name: Restore golangci-lint cache
       if: inputs.golangci-lint == 'true'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.cache/golangci-lint
-        key: golangci-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum', '.golangci.yml', 'aqua.yaml') }}
-        restore-keys: |
-          golangci-${{ runner.os }}-
+        key: ${{ case(inputs.exact-key-only == 'true', 'golangci-exact-v1', 'golangci') }}-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum', '.golangci.yml', 'aqua.yaml') }}
+        restore-keys: ${{ case(inputs.exact-key-only == 'true', '', format('golangci-{0}-', runner.os)) }}
