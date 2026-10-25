@@ -22,5 +22,3 @@ services/auth/
 iac/secrets/*.yaml
 !iac/secrets/*.enc.yaml
 !iac/secrets/*.example.yaml
-
-node_modules/
