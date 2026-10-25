@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.5.3...v1.6.0) (2026-10-25)
+
+
+### Features
+
+* **cache-go:** add exact-key-only restore mode ([#47](https://github.com/air-hand-org/jobdeck-actions/issues/47)) ([589c301](https://github.com/air-hand-org/jobdeck-actions/commit/589c30159bdfd0823c295eb9ca850beddc73e362))
+
+
+### Bug Fixes
+
+* **deps:** update dependency aqua to v2.65.2 ([#45](https://github.com/air-hand-org/jobdeck-actions/issues/45)) ([eda1a55](https://github.com/air-hand-org/jobdeck-actions/commit/eda1a558fd871d0960a701454b8b480a60cddd24))
+* **deps:** update github/codeql-action action to v4.39.1 ([#46](https://github.com/air-hand-org/jobdeck-actions/issues/46)) ([f668b46](https://github.com/air-hand-org/jobdeck-actions/commit/f668b46aa08018007a2c4522d710dcf7553a56ff))
+* **deps:** update jdx/mise-action action to v5.2.1 ([#41](https://github.com/air-hand-org/jobdeck-actions/issues/41)) ([f0e4bdd](https://github.com/air-hand-org/jobdeck-actions/commit/f0e4bdd561efd2a2579c9a84c94244d80f288f85))
+* **deps:** update jdx/mise-action action to v5.2.2 ([#43](https://github.com/air-hand-org/jobdeck-actions/issues/43)) ([557607d](https://github.com/air-hand-org/jobdeck-actions/commit/557607d28e7e6e8146cd25827c49f8e082bc9da5))
+
 ## [1.5.3](https://github.com/air-hand-org/jobdeck-actions/compare/v1.5.2...v1.5.3) (2026-10-20)
 
 
