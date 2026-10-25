@@ -17,11 +17,11 @@ function evaluate(value, exact) {
   }).trim();
 }
 
-test('exact-key-only removes fallback keys and isolates both cache namespaces', () => {
+test('exact-key-only removes fallback keys and preserves both cache namespaces', () => {
   for (const [index, prefix] of [[0, 'go'], [1, 'golangci']]) {
     const cache = action.runs.steps[index].with;
     assert.equal(evaluate(cache['restore-keys'], 'true'), '');
-    assert.equal(evaluate(cache.key, 'true'), `${prefix}-exact-v1-Linux-dependency-hash`);
+    assert.equal(evaluate(cache.key, 'true'), `${prefix}-Linux-dependency-hash`);
   }
 });
 
