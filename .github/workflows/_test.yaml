@@ -11,6 +11,54 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  cache-go:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        exact-key-only: ["true", "false"]
+    env:
+      EXACT_KEY_ONLY: ${{ matrix.exact-key-only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Prepare isolated cache fixtures
+        env:
+          FIXTURE_ID: ${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.exact-key-only }}
+        run: |
+          mkdir -p cache-go-fixture ~/go/pkg/mod ~/.cache/go-build ~/.cache/golangci-lint
+          printf 'module smoke/%s\n' "$FIXTURE_ID" > cache-go-fixture/go.mod
+          touch ~/go/pkg/mod/cache-go-smoke ~/.cache/go-build/cache-go-smoke ~/.cache/golangci-lint/cache-go-smoke
+      - name: Seed Go fallback archive
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-smoke-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.exact-key-only }}
+      - name: Seed golangci-lint fallback archive
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/golangci-lint
+          key: golangci-${{ runner.os }}-smoke-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.exact-key-only }}
+      - name: Remove fixture files before restore
+        run: rm ~/go/pkg/mod/cache-go-smoke ~/.cache/go-build/cache-go-smoke ~/.cache/golangci-lint/cache-go-smoke
+      - uses: $/actions/cache-go
+        with:
+          exact-key-only: ${{ matrix.exact-key-only }}
+      - name: Verify fallback behavior and populate exact archives
+        run: |
+          for path in ~/go/pkg/mod ~/.cache/go-build ~/.cache/golangci-lint; do
+            if [ "$EXACT_KEY_ONLY" = true ]; then
+              test ! -f "$path/cache-go-smoke"
+            else
+              test -f "$path/cache-go-smoke"
+            fi
+            touch "$path/cache-go-smoke"
+          done
+
   test:
     permissions:
       contents: read
