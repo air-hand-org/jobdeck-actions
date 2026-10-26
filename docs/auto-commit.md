@@ -9,12 +9,14 @@ No selected diff means success without minting a token, even if outside paths di
 ## Caller responsibilities
 
 Use this only in an ordinary `pull_request` workflow, not `pull_request_target`.
-The caller decides eligibility: require a same-repository Renovate PR, check out
+The caller decides eligibility: authorize a trusted same-repository PR, check out
 its exact head SHA with `persist-credentials: false`, and generate the artifacts
 before invoking this action. Do not expose App credentials to untrusted fork code.
 Set `eligible` from the PR author/repository, not the triggering actor: App pushes
 must run normal validation too. Run the caller's existing generation/clean-tree
 checks after this action when it returns successfully.
+
+The example below authorizes Renovate; the action itself is not Renovate-specific.
 
 ```yaml
 - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -40,7 +42,7 @@ All inputs are required.
 
 | Input | Contract |
 | --- | --- |
-| `paths` | Newline-separated literal files/directories relative to the repository root. Spaces are preserved; blank lines are ignored. No glob expansion, shell splitting or Git pathspec expressions. Use a directory to include descendants with newline-containing filenames. Root selection (`.`), absolute paths, dot segments, option-like paths and paths resolving outside the checkout are rejected. A final directory slash is accepted. |
+| `paths` | Newline-separated literal files/directories relative to the repository root. Spaces are preserved; blank lines are ignored. No glob expansion, shell splitting or Git pathspec expressions. Use a directory to include descendants with newline-containing filenames. Root selection (including normalized `.`), absolute paths and paths resolving outside the checkout are rejected. Safe dot segments and repeated separators are normalized without replacing a selected symlink with its target. A final directory slash is accepted. Git metadata and missing paths yield no selected diff. Syntax-like filenames (such as `literal*`, `--all` or `:(glob)**`) are literal, never patterns or options. |
 | `eligible` | Literal `true` only when the caller authorizes updating this same-repository PR. |
 | `expected-head` | Exact PR head SHA used for checkout and generation. |
 | `head-branch` | Same-repository PR branch, without `refs/heads/`. |
@@ -60,10 +62,11 @@ selection boundary cannot hide its outside endpoint. Selected paths are staged;
 pre-staged outside paths are neither committed nor unstaged. Selected files are
 committed using their generated working-tree contents, not partial index contents.
 
-The fixed subject `chore: regenerate Renovate artifacts` also prevents a repeat
-commit when generation changes again on the automatically generated head. This
-loop guard does not depend on the triggering actor. A repeated-generation failure
-requires investigation, not another automatic commit.
+The fixed subject `chore: regenerate artifacts by auto-commit action` prevents a
+repeat commit when generation changes again on the automatically generated head.
+This loop guard runs only in the push phase, before the remote read/commit, and
+does not depend on the triggering actor. A repeated-generation failure requires
+investigation, not another automatic commit.
 
 After validation the action creates a repository-scoped Contents-write App token.
 Its returned `app-slug` determines both author and committer:

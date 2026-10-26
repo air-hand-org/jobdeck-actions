@@ -107,14 +107,12 @@ with spaces" ;;
   Parameters
     ineligible
     wrong-head
-    repeated
   End
   reject_guard() {
     change_license
     case "$1" in
       ineligible) ELIGIBLE=false ;;
       wrong-head) EXPECTED_HEAD=0000000000000000000000000000000000000000 ;;
-      repeated) git commit --allow-empty -qm 'chore: regenerate Renovate artifacts'; EXPECTED_HEAD=$(git rev-parse HEAD) ;;
     esac
     validate > /dev/null 2>&1
     test "$?" = 1 &&
@@ -126,12 +124,32 @@ with spaces" ;;
   End
   End
 
+  repeat_generation() {
+    git commit --allow-empty -qm 'chore: regenerate artifacts by auto-commit action'
+    EXPECTED_HEAD=$(git rev-parse HEAD)
+    stage_license || return
+    # No origin: the loop guard must reject before any authenticated remote read.
+    HEAD_BRANCH=generated/test PUSH_TOKEN=fixture APP_SLUG=configured-release-app \
+      bash "$action_dir/push.sh" > "$fixture_root/push.log" 2>&1
+    test "$?" = 1 &&
+      test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD" &&
+      grep -q 'automatic commit loop' "$fixture_root/push.log"
+  }
+  It 'checks the generic loop marker only at push time, independent of actor'
+    When call repeat_generation
+    The status should be success
+  End
+
   Context
   Parameters
     success
     addition
     deletion
     unusual-name
+    glob
+    option
+    magic
+    symlink
     wrong-head
     invalid-branch
     advanced
@@ -153,6 +171,23 @@ with spaces" ;;
       addition) expected_file=third_party/licenses/linux-amd64/example/NOTICE; git restore --staged --worktree third_party/licenses/linux-amd64/example/LICENSE; printf new > "$expected_file" ;;
       deletion) rm "$expected_file" ;;
       unusual-name) expected_file=$(printf 'third_party/licenses/linux-amd64/example/space\nand newline'); git restore --staged --worktree third_party/licenses/linux-amd64/example/LICENSE; printf new > "$expected_file" ;;
+    esac
+    case "$1" in
+      glob|option|magic|symlink)
+        git restore --staged --worktree third_party/licenses/linux-amd64/example/LICENSE
+        case "$1" in
+          glob) expected_file='literal*'; printf outside > literal-other ;;
+          option) expected_file='--all' ;;
+          magic) expected_file=':(glob)**' ;;
+          symlink) expected_file=third_party/licenses/linux-amd64/example/link ;;
+        esac
+        if [ "$1" = symlink ]; then
+          ln -s "$fixture_root" "$expected_file"
+        else
+          PATHS=$expected_file
+          printf literal > "$expected_file"
+        fi
+        ;;
     esac
     validate > /dev/null || return
     original_head=$EXPECTED_HEAD
@@ -188,7 +223,7 @@ with spaces" ;;
         test "$(git diff --cached --name-only)" = go.mod &&
         test "$(cat README.md)" = unstaged-outside &&
         test "$(git log -1 --format='%an <%ae>|%cn <%ce>')" = 'configured-release-app[bot] <configured-release-app[bot]@users.noreply.github.com>|configured-release-app[bot] <configured-release-app[bot]@users.noreply.github.com>' &&
-        test "$(git log -1 --format=%s)" = 'chore: regenerate Renovate artifacts' &&
+        test "$(git log -1 --format=%s)" = 'chore: regenerate artifacts by auto-commit action' &&
         grep -q 'fails intentionally' "$fixture_root/push.log"
     else
       test "$actual" = "$concurrent"
@@ -220,14 +255,16 @@ with spaces" ;;
       '../escape'
       '/absolute'
       'nested/../../escape'
-      ':(glob)**'
-      '--all'
+      'nested/..'
+      './'
       '.'
-      '.git/config'
       'escape/file'
+      'escape/missing/../file'
+      'outside-link'
     End
     invalid_path() {
       ln -s "$fixture_root" escape
+      ln -s "$fixture_root/output" outside-link
       change_license
       PATHS=$1 validate > /dev/null 2>&1
       test "$?" = 1 && test -z "$(git diff --cached --name-only)" && test ! -s "$GITHUB_OUTPUT"
@@ -238,11 +275,37 @@ with spaces" ;;
     End
   End
 
+  Context 'selectors without changes'
+    Parameters
+      '.git'
+      '.git/config'
+      'missing/deep/file'
+      'literal*'
+      ':(glob)**'
+      '--all'
+    End
+    no_selected_diff() {
+      change_license
+      printf outside > literal-other
+      PATHS=$1 validate > /dev/null || return
+      test ! -s "$GITHUB_OUTPUT" && test -z "$(git diff --cached --name-only)"
+    }
+    It 'does not select metadata, missing paths or expand syntax-like names'
+      When call no_selected_diff "$1"
+      The status should be success
+    End
+  End
+
   Context 'literal selections'
     Parameters
       file
       multiple
       glob
+      option
+      magic
+      dot-segments
+      symlink
+      deleted-directory
       rename
     End
     selected_paths() {
@@ -250,14 +313,20 @@ with spaces" ;;
         file) PATHS=third_party/licenses/linux-amd64/example/LICENSE; change_license ;;
         multiple) PATHS=$(printf 'go.mod\nthird_party/licenses/linux-amd64'); printf updated > go.mod; change_license ;;
         glob) PATHS='literal*'; printf literal > 'literal*'; printf outside > literal-other ;;
+        option) PATHS='--all'; printf literal > "$PATHS"; change_license ;;
+        magic) PATHS=':(glob)**'; printf literal > "$PATHS"; change_license ;;
+        dot-segments) PATHS='./third_party/../third_party/licenses//linux-amd64/'; change_license ;;
+        symlink) ln -s go.mod selected-link; git add selected-link; git commit -qm link; EXPECTED_HEAD=$(git rev-parse HEAD); ln -sfn missing-target selected-link; PATHS=selected-link ;;
+        deleted-directory) rm -r third_party/licenses/linux-amd64 ;;
         rename) mv go.mod third_party/licenses/linux-amd64/moved ;;
       esac
-      validate > /dev/null || return
+      validate > /dev/null 2> "$fixture_root/validate.log" || return
       test "$(cat "$GITHUB_OUTPUT")" = push=true || return
       case "$1" in
         file) test "$(git diff --cached --name-only)" = "$PATHS" ;;
         multiple) test "$(git diff --cached --name-only | wc -l)" = 2 ;;
-        glob) test "$(git diff --cached --name-only)" = 'literal*' ;;
+        glob|option|magic|symlink) test "$(git diff --cached --name-only)" = "$PATHS" ;;
+        dot-segments|deleted-directory) test "$(git diff --cached --name-only)" = third_party/licenses/linux-amd64/example/LICENSE ;;
         rename) test "$(git diff --cached --name-only)" = third_party/licenses/linux-amd64/moved && test -n "$(git diff --name-only -- go.mod)" ;;
       esac
     }

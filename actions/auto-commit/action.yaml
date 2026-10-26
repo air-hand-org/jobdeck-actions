@@ -2,7 +2,7 @@ name: Auto-commit selected paths
 description: Commit only selected generated paths, push with a scoped App token and fail the old run.
 inputs:
   paths:
-    description: Newline-separated literal repository-relative files or directories; no globs.
+    description: Newline-separated literal repository-relative files or directories; no glob expansion.
     required: true
   eligible:
     description: Whether the caller authorizes this same-repository pull request
