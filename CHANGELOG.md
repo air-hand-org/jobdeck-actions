@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.6.0...v1.7.0) (2026-10-26)
+
+
+### Features
+
+* add specified-path auto-commit action ([#51](https://github.com/air-hand-org/jobdeck-actions/issues/51)) ([4f71117](https://github.com/air-hand-org/jobdeck-actions/commit/4f71117cc779892967842e5b875e0d1a5006b895))
+
+
+### Bug Fixes
+
+* **deps:** update aquaproj/aqua-installer action to v4.1.1 ([#49](https://github.com/air-hand-org/jobdeck-actions/issues/49)) ([3a871bf](https://github.com/air-hand-org/jobdeck-actions/commit/3a871bf5368ef89097e2c2bf8a4fc31f858136bf))
+
 ## [1.6.0](https://github.com/air-hand-org/jobdeck-actions/compare/v1.5.3...v1.6.0) (2026-10-25)
 
 
