@@ -1,0 +1,2 @@
+--shell bash
+--default-path actions/auto-commit/spec

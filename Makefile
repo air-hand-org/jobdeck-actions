@@ -11,6 +11,7 @@ lint:
 .PHONY: test
 test:
 	node actions/slack-pr-review-request/message.test.js
+	shellspec
 
 .PHONY: check-clean
 check-clean:
