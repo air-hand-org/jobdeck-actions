@@ -13,3 +13,4 @@ registries:
 packages:
 - name: suzuki-shunsuke/pinact@v5.0.1
 - name: zizmorcore/zizmor@v1.31.1
+- name: shellspec/shellspec@0.28.1
