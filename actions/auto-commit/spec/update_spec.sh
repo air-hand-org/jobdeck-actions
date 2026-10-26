@@ -142,6 +142,8 @@ with spaces" ;;
     git init --bare -q "$remote"
     git remote add origin "$remote"
     git push -q origin HEAD:refs/heads/renovate/test
+    printf '#!/bin/sh\ntest -z "${PUSH_TOKEN+x}"\n' > .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
     stage_license || return
     printf staged-outside > go.mod
     git add go.mod

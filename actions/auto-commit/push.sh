@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Keep credentials out of the environment of validation Git commands and hooks.
+push_token=${PUSH_TOKEN:?}
+unset PUSH_TOKEN
+auth=$(printf 'x-access-token:%s' "$push_token" | base64 -w0)
+unset push_token
 source "$(dirname "${BASH_SOURCE[0]}")/paths.sh"
 ((${#paths[@]})) || exit 0
 git check-ref-format "refs/heads/${HEAD_BRANCH:?}"
 [[ $(git rev-parse HEAD) == "${EXPECTED_HEAD:?}" ]] || exit 1
 [[ $(git log -1 --format=%s) != 'chore: regenerate Renovate artifacts' ]] || exit 1
-# The token is operation-local; never persist it in checkout/config credentials.
-auth=$(printf 'x-access-token:%s' "${PUSH_TOKEN:?}" | base64 -w0)
+# Authentication is operation-local, never persisted in checkout/config credentials.
 remote_head=$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" \
   ls-remote --exit-code origin "refs/heads/$HEAD_BRANCH")
 if [[ ${remote_head%%$'\t'*} != "$EXPECTED_HEAD" ]]; then
