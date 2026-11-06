@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.1...v1.7.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* **deps:** update github/codeql-action action to v4.39.2 ([#68](https://github.com/air-hand-org/jobdeck-actions/issues/68)) ([815a10f](https://github.com/air-hand-org/jobdeck-actions/commit/815a10f88024e68a6f53cec499fe7437ced2e430))
+
 ## [1.7.1](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.0...v1.7.1) (2026-11-06)
 
 
