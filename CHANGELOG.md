@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.2](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.1...v1.7.2) (2026-11-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency aqua to v2.66.1 ([#72](https://github.com/air-hand-org/jobdeck-actions/issues/72)) ([bd44260](https://github.com/air-hand-org/jobdeck-actions/commit/bd442600384ab8aeeebea999cb2a8b8a3fc3510c))
+* **deps:** update github/codeql-action action to v4.39.2 ([#68](https://github.com/air-hand-org/jobdeck-actions/issues/68)) ([815a10f](https://github.com/air-hand-org/jobdeck-actions/commit/815a10f88024e68a6f53cec499fe7437ced2e430))
+* **deps:** update github/codeql-action action to v4.39.3 ([#70](https://github.com/air-hand-org/jobdeck-actions/issues/70)) ([484604f](https://github.com/air-hand-org/jobdeck-actions/commit/484604f53a91a9efcf56e4d437b32c657eddb182))
+
 ## [1.7.1](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.0...v1.7.1) (2026-11-06)
 
 
