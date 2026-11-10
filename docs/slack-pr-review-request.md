@@ -32,8 +32,17 @@ jobs:
       slack-bot-token: ${{ secrets.SLACK_REVIEW_NOTIFIER_BOT_TOKEN }}
 ```
 
-The caller controls the event types. Fork PRs are excluded because GitHub does
-not pass Actions Secrets to their `pull_request` runs. Dependabot PRs are also
+The caller owns event types, CI success and tested-head freshness, PR
+state/draft/auto-merge restrictions, and manual-command permissions. The notifier
+infers the PR number from `pull_request.number` or `issue_comment.issue.number`
+when `issue.pull_request` is present and fetches current PR metadata. For both
+event shapes, it skips forks by comparing the fetched `head.repo.full_name` with
+the current repository. Otherwise it sends the existing message regardless of
+PR state, without other eligibility or permission checks. Never call it from an
+untrusted comment without validating the exact command and current repository
+write permission first. Neither workflow checks out PR code or consumes artifacts.
+
+GitHub does not pass Actions Secrets to fork `pull_request` runs. Dependabot PRs are also
 subject to GitHub's restricted secret handling; configure corresponding
 Dependabot secrets if notifications are needed for them.
 
@@ -63,12 +72,14 @@ values as inputs. Hermes must accept bot mentions in the channel.
 
 ## Events and repeat requests
 
-Opening or reopening a non-draft PR, making a draft ready, and changing its head
-with `synchronize` request review. Draft and closed PRs are skipped. Before
-sending, the action fetches the PR again: an event can wait while the PR becomes
-draft, closes, or gets a new head. Superseded events are skipped. The state can
-still change after that check, so Hermes must verify the requested head before
-publishing a result.
+The example caller requests review on opening, reopening, readiness, and head
+updates for eligible PRs. Other callers can gate requests on CI or a manual
+`issue_comment` command. Comment workflows must be on the default branch before
+GitHub can trigger them.
+
+Before sending, the notifier fetches the PR and uses its current head SHA.
+Caller eligibility checks and delivery are not atomic: state or head can change
+between them. Hermes must verify the requested head before publishing a result.
 
 The job serializes requests by repository and PR with `cancel-in-progress: false`.
 GitHub can replace pending runs, so rapid updates can collapse to the latest
@@ -85,9 +96,10 @@ message if an earlier request was accepted before its response was lost. Inspect
 the failed run and channel before manually rerunning, and correct the App's
 permissions, membership, or token as needed.
 
-`make test` checks only message generation: the top-level mention, PR URL,
-requested head, event, run URL, and payload fields. It needs no API stubs, Slack
-workspace, or mock server. `make lint` checks workflow security and pinning.
+`make test` checks message generation and notification preparation for both
+event shapes, current metadata, unrestricted PR states and lookup failures.
+GitHub API calls are stubbed; no Slack workspace is required. `make lint` checks
+workflow security and pinning.
 
 After rollout, use a real non-draft same-repository PR to confirm Slack receives
 the request and Hermes fetches the PR and starts reviewing. Successful delivery

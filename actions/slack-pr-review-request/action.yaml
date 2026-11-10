@@ -1,5 +1,5 @@
 name: Slack PR review request
-description: Request review for the current non-draft PR head without executing PR code.
+description: Notify review for a PR using current metadata without executing PR code.
 
 inputs:
   channel-id:

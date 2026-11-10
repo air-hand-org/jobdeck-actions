@@ -18,7 +18,8 @@ test('builds a top-level Slack review request with the PR URL and requested head
     },
   };
 
-  const payload = createMessage({ context, channelId: 'C0123456789', reviewerUserId: 'U0123456789' });
+  assert.throws(() => createMessage({ context, channelId: 'C0123456789', reviewerUserId: 'U0123456789' }), TypeError);
+  const payload = createMessage({ context, pr: context.payload.pull_request, channelId: 'C0123456789', reviewerUserId: 'U0123456789' });
 
   assert.deepEqual(payload, {
     channel: 'C0123456789',
