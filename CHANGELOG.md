@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.3](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.2...v1.7.3) (2026-11-10)
+
+
+### Bug Fixes
+
+* **deps:** update jdx/mise-action action to v5.2.7 ([#73](https://github.com/air-hand-org/jobdeck-actions/issues/73)) ([4656e8c](https://github.com/air-hand-org/jobdeck-actions/commit/4656e8cc7b8b990090c4d1c11d41483781fe7076))
+* separate PR notification delivery from caller policy ([#78](https://github.com/air-hand-org/jobdeck-actions/issues/78)) ([4ed033c](https://github.com/air-hand-org/jobdeck-actions/commit/4ed033ca08a3f917e952bfb0774051951a97c7fa))
+
 ## [1.7.2](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.1...v1.7.2) (2026-11-08)
 
 
