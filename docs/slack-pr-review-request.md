@@ -1,95 +1,103 @@
 # Slack PR review requests
 
-`.github/workflows/reusable-slack-pr-review-request.yaml` requests review through
- the official Slack Action's `chat.postMessage`. The top-level `text` contains a
-reviewer mention, PR URL, head SHA, event name, and workflow run URL. PR titles,
-bodies, and files are not included or executed.
+`.github/workflows/reusable-slack-pr-review-request.yaml` sends a top-level
+Slack reviewer mention, PR URL, current head SHA, event, and notifier run URL.
+PR titles, bodies, comments, and files are never passed to the reviewer or
+executed. The notifier app must be separate from Hermes, which ignores its own
+posts.
 
 ## Caller workflow
 
-Publish the reusable workflow first and replace `REVIEW_WORKFLOW_COMMIT_SHA`
-with its full commit SHA. The workflow and `$/actions/slack-pr-review-request`
-action resolve from the same commit without checking out PR code.
+Pin `REVIEW_WORKFLOW_COMMIT_SHA` to the reviewed full commit SHA. Select the
+actual PR CI workflow's name in `workflow_run.workflows` and its exact path in
+`ci-workflow-path`; never select the notifier itself.
 
 ```yaml
 name: Request PR review
 on:
-  pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  issue_comment:
+    types: [created]
 permissions: {}
 jobs:
-  request-review:
+  notify:
     if: >-
-      github.event.pull_request.state == 'open' &&
-      !github.event.pull_request.draft &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/review')
     permissions:
+      actions: read
+      contents: read
       pull-requests: read
     uses: air-hand-org/jobdeck-actions/.github/workflows/reusable-slack-pr-review-request.yaml@REVIEW_WORKFLOW_COMMIT_SHA
+    with:
+      ci-workflow-path: .github/workflows/ci.yaml
+      target-branch: main
     secrets:
       channel-id: ${{ secrets.SLACK_REVIEW_CHANNEL_ID }}
       reviewer-user-id: ${{ secrets.SLACK_REVIEWER_USER_ID }}
       slack-bot-token: ${{ secrets.SLACK_REVIEW_NOTIFIER_BOT_TOKEN }}
 ```
 
-The caller controls the event types. Fork PRs are excluded because GitHub does
-not pass Actions Secrets to their `pull_request` runs. Dependabot PRs are also
-subject to GitHub's restricted secret handling; configure corresponding
-Dependabot secrets if notifications are needed for them.
+Both events require the caller workflow to exist on the default branch. The
+reusable workflow and its `$/actions/slack-pr-review-request` resolve from the
+same pinned commit without checking out PR code. These privileged events can
+access secrets, so do not add PR checkouts, artifacts, or executable PR content.
 
-The GitHub token needs only `pull-requests: read`. Pass the three named secrets;
-`secrets: inherit`, a PAT, GitHub App key, and repository write access are
-unnecessary for the notification.
+## Eligibility and manual override
 
-## Slack setup
+Automatic requests require a freshly fetched Actions run for the configured CI
+path: event `pull_request`, status `completed`, conclusion `success`, and a head
+repository matching the caller. The action resolves the open PR by head branch
+and base branch, then re-fetches it. Only an open, unmerged, non-draft,
+same-repository PR on the configured base with the exact CI head SHA and
+`auto_merge: null` requests review. Mergeability is not used as a substitute for
+the auto-merge setting. Missing or ambiguous PR matches fail closed, including
+when `workflow_run.pull_requests` is empty.
 
-Reuse a notifier Slack App separate from Hermes, because Hermes excludes its
-own posts. Grant `chat:write`, install the App, and invite its bot to the target
-channel. Channel membership avoids needing `chat:write.public`.
+A newly created PR conversation comment containing only `/review` requests
+review without requiring green CI or disabling auto-merge. Only `OWNER`,
+`MEMBER`, or `COLLABORATOR` authors with current repository write, maintain, or
+admin permission (including a custom role's push permission) are accepted.
+Read-only members, issues, edited comments, embedded commands, quoted commands,
+and additional instructions do not request review. The same open/unmerged,
+non-draft, same-repository and base-branch restrictions still apply.
 
-Set these Actions Secrets in the calling repository, or use organization secrets
-available to it:
+State can change after the final API read. Hermes must verify the requested
+head before publishing a review. Becoming ready, reopening, or disabling
+auto-merge after CI has already completed does not emit a new automatic request;
+use `/review` or rerun CI. There is no durable deduplication or exactly-once
+promise: CI reruns, repeated commands, and delivery retries can repeat a SHA.
+Automatic requests serialize by head branch; manual requests serialize by PR.
+GitHub can replace queued pending runs.
 
-| Actions Secret | Value |
+## Slack setup and permissions
+
+Grant the notifier Slack app `chat:write`, install it, and invite its bot to the
+target channel. Configure the caller's Actions secrets:
+
+| Secret | Value |
 | --- | --- |
-| `SLACK_REVIEW_NOTIFIER_BOT_TOKEN` | Notifier App's Bot User OAuth Token (`xoxb-...`), separate from Hermes |
-| `SLACK_REVIEW_CHANNEL_ID` | ID of the channel receiving requests |
-| `SLACK_REVIEWER_USER_ID` | Slack user ID of the reviewer to mention |
+| `SLACK_REVIEW_NOTIFIER_BOT_TOKEN` | Separate notifier app's bot token |
+| `SLACK_REVIEW_CHANNEL_ID` | Review channel ID |
+| `SLACK_REVIEWER_USER_ID` | Hermes reviewer user ID |
 
-Channel and user IDs are actual workspace identifiers. They are passed as
-secrets to avoid publishing them in source files or Actions logs. Examples and
-tests contain no actual workspace IDs. The composite action receives the mapped
-values as inputs. Hermes must accept bot mentions in the channel.
+Hermes must accept bot mentions in the channel. Pass only these named secrets;
+no PAT, App private key, write token, or `secrets: inherit` is needed. GitHub
+permissions are `actions: read` for live CI runs, `pull-requests: read` for PR
+state, and `contents: read` for repository collaborator-permission lookup.
 
-## Events and repeat requests
+## Verification and failures
 
-Opening or reopening a non-draft PR, making a draft ready, and changing its head
-with `synchronize` request review. Draft and closed PRs are skipped. Before
-sending, the action fetches the PR again: an event can wait while the PR becomes
-draft, closes, or gets a new head. Superseded events are skipped. The state can
-still change after that check, so Hermes must verify the requested head before
-publishing a result.
+`make test` exercises message generation and the automatic/manual eligibility
+matrix with API-boundary fixtures, plus the existing shell suites. `make lint`
+checks workflow security and immutable action pins. Local tests do not send
+Slack messages or prove GitHub event scheduling. After merging the shared
+workflow and caller, verify a real successful current-head CI completion,
+auto-merge suppression, stale-head suppression, and a trusted `/review` comment.
+Confirm both Slack delivery and Hermes starting review separately.
 
-The job serializes requests by repository and PR with `cancel-in-progress: false`.
-GitHub can replace pending runs, so rapid updates can collapse to the latest
-head. Reopening, becoming ready again, retry, or manual rerun can request the same
-SHA more than once. No durable deduplication store or exactly-once guarantee is
-provided. Review labels and release gating are outside this workflow's scope.
-
-## Failures and verification
-
-The preparation step reports failures through `core.setFailed`. Delivery uses
-`slackapi/slack-github-action` with `errors: true` and its default retry policy.
-Remaining Slack API or transport errors fail the job. A retry can duplicate a
-message if an earlier request was accepted before its response was lost. Inspect
-the failed run and channel before manually rerunning, and correct the App's
-permissions, membership, or token as needed.
-
-`make test` checks only message generation: the top-level mention, PR URL,
-requested head, event, run URL, and payload fields. It needs no API stubs, Slack
-workspace, or mock server. `make lint` checks workflow security and pinning.
-
-After rollout, use a real non-draft same-repository PR to confirm Slack receives
-the request and Hermes fetches the PR and starts reviewing. Successful delivery
-alone does not prove a review started. Confirm ready-for-review, reopening, head
-updates, and draft skipping through real events as needed.
+Preparation API failures fail the job without sending a request. Slack delivery
+uses `errors: true` and the official action's default retries. A lost response
+can duplicate an accepted message; inspect the channel before retrying.

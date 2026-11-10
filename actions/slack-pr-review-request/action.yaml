@@ -2,6 +2,12 @@ name: Slack PR review request
 description: Request review for the current non-draft PR head without executing PR code.
 
 inputs:
+  ci-workflow-path:
+    description: Exact trusted PR CI workflow path
+    required: true
+  target-branch:
+    description: PR base branch
+    default: main
   channel-id:
     description: Slack channel receiving the request
     required: true
@@ -12,7 +18,7 @@ inputs:
     description: Token for the notifier Slack app, separate from the reviewer
     required: true
   github-token:
-    description: GitHub token with pull-requests read permission
+    description: GitHub token with actions, contents, and pull-requests read permissions
     required: true
 
 runs:
@@ -22,6 +28,8 @@ runs:
       id: prepare
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
+        CI_WORKFLOW_PATH: ${{ inputs.ci-workflow-path }}
+        TARGET_BRANCH: ${{ inputs.target-branch }}
         SLACK_CHANNEL_ID: ${{ inputs.channel-id }}
         SLACK_REVIEWER_USER_ID: ${{ inputs.reviewer-user-id }}
       with:

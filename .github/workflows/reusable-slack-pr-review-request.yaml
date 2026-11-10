@@ -2,6 +2,15 @@ name: Reusable Slack PR review request
 
 on:
   workflow_call:
+    inputs:
+      ci-workflow-path:
+        description: Exact trusted PR CI workflow path (not the notifier)
+        type: string
+        required: true
+      target-branch:
+        description: PR base branch
+        type: string
+        default: main
     secrets:
       channel-id:
         description: Slack channel receiving review requests
@@ -18,16 +27,20 @@ permissions: {}
 jobs:
   request-review:
     permissions:
+      actions: read
+      contents: read
       pull-requests: read
     runs-on: ubuntu-slim
     # Keep a notification already being sent alive; queued obsolete heads are skipped.
     concurrency:
-      group: slack-pr-review-request-${{ github.repository }}-${{ github.event.pull_request.number }}
+      group: slack-pr-review-request-${{ github.repository }}-${{ github.event.issue.number || github.event.workflow_run.head_branch }}
       cancel-in-progress: false
     steps:
       - name: Request PR review in Slack
         uses: $/actions/slack-pr-review-request
         with:
+          ci-workflow-path: ${{ inputs.ci-workflow-path }}
+          target-branch: ${{ inputs.target-branch }}
           channel-id: ${{ secrets.channel-id }}
           reviewer-user-id: ${{ secrets.reviewer-user-id }}
           slack-bot-token: ${{ secrets.slack-bot-token }}
