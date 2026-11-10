@@ -41,8 +41,10 @@ for (const eventName of ['pull_request', 'issue_comment']) {
       fetched = true;
       return { data: { number: 42, head: { sha: 'current', repo: { full_name: 'fork/application' } } } };
     } } } };
-    assert.equal(await prepare({ github, context }), undefined);
+    const messages = [];
+    assert.equal(await prepare({ github, context, core: { info: (message) => messages.push(message) } }), undefined);
     assert.equal(fetched, true);
+    assert.deepEqual(messages, ['Skipping a fork PR.']);
   });
 }
 

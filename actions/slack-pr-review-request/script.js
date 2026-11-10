@@ -1,6 +1,6 @@
 const createMessage = require('./message');
 
-module.exports = async ({ github, context, env = process.env }) => {
+module.exports = async ({ github, context, core, env = process.env }) => {
   const number = context.payload.pull_request?.number ??
     (context.payload.issue?.pull_request ? context.payload.issue.number : undefined);
   if (!number) {
@@ -12,6 +12,7 @@ module.exports = async ({ github, context, env = process.env }) => {
     pull_number: number,
   });
   if (pr.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+    core.info('Skipping a fork PR.');
     return;
   }
   return createMessage({
