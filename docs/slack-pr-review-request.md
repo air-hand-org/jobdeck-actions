@@ -32,12 +32,13 @@ jobs:
       slack-bot-token: ${{ secrets.SLACK_REVIEW_NOTIFIER_BOT_TOKEN }}
 ```
 
-The caller owns all eligibility policy: event types, CI success and tested-head
-freshness, PR state/draft/fork/auto-merge restrictions, and manual-command
-permissions. The notifier infers the PR number from `pull_request.number` or
-`issue_comment.issue.number` when `issue.pull_request` is present, fetches the
-current PR metadata, and sends the existing message regardless of PR state.
-It performs no eligibility or permission checks. Never call it from an
+The caller owns event types, CI success and tested-head freshness, PR
+state/draft/auto-merge restrictions, and manual-command permissions. The notifier
+infers the PR number from `pull_request.number` or `issue_comment.issue.number`
+when `issue.pull_request` is present and fetches current PR metadata. For both
+event shapes, it skips forks by comparing the fetched `head.repo.full_name` with
+the current repository. Otherwise it sends the existing message regardless of
+PR state, without other eligibility or permission checks. Never call it from an
 untrusted comment without validating the exact command and current repository
 write permission first. Neither workflow checks out PR code or consumes artifacts.
 

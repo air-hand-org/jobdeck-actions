@@ -6,11 +6,14 @@ module.exports = async ({ github, context, env = process.env }) => {
   if (!number) {
     throw new Error('The event must contain a PR.');
   }
-  // Eligibility belongs to the caller. Always use current metadata for delivery.
+  // Use current metadata for delivery and the shared fork restriction.
   const { data: pr } = await github.rest.pulls.get({
     ...context.repo,
     pull_number: number,
   });
+  if (pr.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+    return;
+  }
   return createMessage({
     context,
     pr,

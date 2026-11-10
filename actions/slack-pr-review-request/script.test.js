@@ -14,7 +14,7 @@ for (const eventName of ['pull_request', 'issue_comment']) {
     const github = { rest: { pulls: { get: async (args) => {
       assert.deepEqual(args, { owner: 'example', repo: 'application', pull_number: 42 });
       return { data: { number: 42, state: 'closed', merged: true, draft: true,
-        auto_merge: {}, head: { sha: 'current', repo: { full_name: 'fork/application' } } } };
+        auto_merge: {}, head: { sha: 'current', repo: { full_name: 'example/application' } } } };
     } } } };
     const payload = await prepare({ github, context, core: { info() {} }, env: {
       SLACK_CHANNEL_ID: 'channel', SLACK_REVIEWER_USER_ID: 'reviewer',
@@ -24,6 +24,25 @@ for (const eventName of ['pull_request', 'issue_comment']) {
     assert.equal(payload.channel, 'channel');
     assert.equal(payload.unfurl_links, false);
     assert.equal(payload.unfurl_media, false);
+  });
+}
+
+for (const eventName of ['pull_request', 'issue_comment']) {
+  test(`${eventName} skips a fork using freshly fetched PR metadata`, async () => {
+    const context = {
+      eventName, repo: { owner: 'example', repo: 'application' },
+      payload: eventName === 'pull_request'
+        ? { pull_request: { number: 42, head: { repo: { full_name: 'example/application' } } } }
+        : { issue: { number: 42, pull_request: {} } },
+    };
+    let fetched = false;
+    const github = { rest: { pulls: { get: async (args) => {
+      assert.deepEqual(args, { owner: 'example', repo: 'application', pull_number: 42 });
+      fetched = true;
+      return { data: { number: 42, head: { sha: 'current', repo: { full_name: 'fork/application' } } } };
+    } } } };
+    assert.equal(await prepare({ github, context }), undefined);
+    assert.equal(fetched, true);
   });
 }
 
