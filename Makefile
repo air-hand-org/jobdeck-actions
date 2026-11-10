@@ -10,7 +10,7 @@ lint:
 
 .PHONY: test
 test:
-	node actions/slack-pr-review-request/message.test.js
+	node --test actions/slack-pr-review-request/*.test.js
 	shellspec
 
 .PHONY: check-clean

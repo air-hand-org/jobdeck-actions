@@ -20,9 +20,9 @@ jobs:
     permissions:
       pull-requests: read
     runs-on: ubuntu-slim
-    # Keep a notification already being sent alive; queued obsolete heads are skipped.
+    # Keep a notification already being sent alive; eligibility belongs to callers.
     concurrency:
-      group: slack-pr-review-request-${{ github.repository }}-${{ github.event.pull_request.number }}
+      group: slack-pr-review-request-${{ github.repository }}-${{ github.event.pull_request.number || github.event.issue.number }}
       cancel-in-progress: false
     steps:
       - name: Request PR review in Slack

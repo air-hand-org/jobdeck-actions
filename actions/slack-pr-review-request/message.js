@@ -1,8 +1,7 @@
-module.exports = ({ context, channelId, reviewerUserId }) => {
+module.exports = ({ context, pr = context.payload.pull_request, channelId, reviewerUserId }) => {
   // Use runner context and revision identifiers; never include PR titles or bodies.
   const { owner, repo } = context.repo;
   const repositoryUrl = `${context.serverUrl}/${owner}/${repo}`;
-  const pr = context.payload.pull_request;
   return {
     channel: channelId,
     text: `<@${reviewerUserId}> Please review ${repositoryUrl}/pull/${pr.number}\n` +
