@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.5](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.4...v1.7.5) (2026-11-28)
+
+
+### Bug Fixes
+
+* **deps:** update actions/create-github-app-token action to v3.4.0 ([#90](https://github.com/air-hand-org/jobdeck-actions/issues/90)) ([80dc82f](https://github.com/air-hand-org/jobdeck-actions/commit/80dc82f74eb8e9c6490afee775ed8d6d9d531ec5))
+* **deps:** update aquaproj/aqua-installer action to v4.1.2 ([#99](https://github.com/air-hand-org/jobdeck-actions/issues/99)) ([2ce13d3](https://github.com/air-hand-org/jobdeck-actions/commit/2ce13d37bfec140b0de7db20079547738ffc95d5))
+* **deps:** update github/codeql-action action to v4.39.4 ([#92](https://github.com/air-hand-org/jobdeck-actions/issues/92)) ([648048e](https://github.com/air-hand-org/jobdeck-actions/commit/648048ecaa4870bb1adfd9c81ce6e01bdc280a3c))
+* **deps:** update github/codeql-action action to v4.39.5 ([#101](https://github.com/air-hand-org/jobdeck-actions/issues/101)) ([8bc771f](https://github.com/air-hand-org/jobdeck-actions/commit/8bc771f4c0d29ed30e627e69551baed87b5093a8))
+* **deps:** update jdx/mise-action action to v5.2.10 ([#89](https://github.com/air-hand-org/jobdeck-actions/issues/89)) ([0b85143](https://github.com/air-hand-org/jobdeck-actions/commit/0b85143d42ff2f74f30a942989fb6795124d4135))
+* **deps:** update jdx/mise-action action to v5.3.0 ([#95](https://github.com/air-hand-org/jobdeck-actions/issues/95)) ([3337fb7](https://github.com/air-hand-org/jobdeck-actions/commit/3337fb7e6295da30be42b094db670d456ebfe0bc))
+* **deps:** update slackapi/slack-github-action action to v4.1.0 ([#94](https://github.com/air-hand-org/jobdeck-actions/issues/94)) ([1d68a46](https://github.com/air-hand-org/jobdeck-actions/commit/1d68a462b211e0db89e1e41431870128a279dce8))
+
 ## [1.7.4](https://github.com/air-hand-org/jobdeck-actions/compare/v1.7.3...v1.7.4) (2026-11-18)
 
 
